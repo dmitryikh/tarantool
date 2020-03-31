@@ -8,3 +8,15 @@ if (CC_HAS_WNO_IMPLICIT_FALLTHROUGH)
         -Wno-implicit-fallthrough)
 endif()
 add_library(uri STATIC uri.c)
+
+if(ENABLE_FUZZER)
+    set(TestName "test_uri")
+    add_executable(${TestName} ${TestName}.c)
+    add_compile_options(-fsanitize=fuzzer,address -g -O1)
+    set_target_properties(${TestName}
+            PROPERTIES
+            COMPILE_FLAGS "-fsanitize=fuzzer,address -g -O1"
+            LINK_FLAGS "-fsanitize=fuzzer,address")
+    target_link_libraries(${TestName} PRIVATE uri)
+    set_target_properties(${TestName} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${TESTING_OUTPUT_DIRECTORY}")
+endif()
