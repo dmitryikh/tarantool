@@ -25,10 +25,14 @@ macro(curl_build)
         set(ASYN_DNS_USED "ares")
         set(ASYN_DNS_UNUSED "threaded-resolver")
         set(ASYN_DNS_PATH "=${ARES_INSTALL_DIR}")
+        set(ENABLE_ARES "ON")
+        set(CMAKE_FIND_ROOT_PATH "${ARES_INSTALL_DIR}")
     else()
         set(ASYN_DNS_USED "threaded-resolver")
         set(ASYN_DNS_UNUSED "ares")
         set(ASYN_DNS_PATH "")
+        set(ENABLE_ARES "OFF")
+        set(CMAKE_FIND_ROOT_PATH "")
     endif()
 
     set(ENABLED_DNS_OPT "--enable-${ASYN_DNS_USED}${ASYN_DNS_PATH}")
@@ -49,108 +53,140 @@ macro(curl_build)
     endif()
 
     include(ExternalProject)
-    ExternalProject_Add(
-        bundled-libcurl-project
-        SOURCE_DIR ${LIBCURL_SOURCE_DIR}
-        PREFIX ${LIBCURL_INSTALL_DIR}
-        DOWNLOAD_DIR ${LIBCURL_BINARY_DIR}
-        TMP_DIR ${LIBCURL_BINARY_DIR}/tmp
-        STAMP_DIR ${LIBCURL_BINARY_DIR}/stamp
-        BINARY_DIR ${LIBCURL_BINARY_DIR}
-        CONFIGURE_COMMAND
-            cd <SOURCE_DIR> && ./buildconf &&
-            cd <BINARY_DIR> && <SOURCE_DIR>/configure
-                # Pass the same toolchain as is used to build
-                # tarantool itself, because they can be
-                # incompatible.
-                CC=${CMAKE_C_COMPILER}
-                LD=${CMAKE_LINKER}
-                AR=${CMAKE_AR}
-                RANLIB=${CMAKE_RANLIB}
-                NM=${CMAKE_NM}
-                STRIP=${CMAKE_STRIP}
+    if(${CMAKE_MAJOR_VERSION} VERSION_LESS "3")
+        ExternalProject_Add(
+            bundled-libcurl-project
+            SOURCE_DIR ${LIBCURL_SOURCE_DIR}
+            PREFIX ${LIBCURL_INSTALL_DIR}
+            DOWNLOAD_DIR ${LIBCURL_BINARY_DIR}
+            TMP_DIR ${LIBCURL_BINARY_DIR}/tmp
+            STAMP_DIR ${LIBCURL_BINARY_DIR}/stamp
+            BINARY_DIR ${LIBCURL_BINARY_DIR}
+            CONFIGURE_COMMAND
+                cd <SOURCE_DIR> && ./buildconf &&
+                cd <BINARY_DIR> && <SOURCE_DIR>/configure
+                    # Pass the same toolchain as is used to build
+                    # tarantool itself, because they can be
+                    # incompatible.
+                    CC=${CMAKE_C_COMPILER}
+                    LD=${CMAKE_LINKER}
+                    AR=${CMAKE_AR}
+                    RANLIB=${CMAKE_RANLIB}
+                    NM=${CMAKE_NM}
+                    STRIP=${CMAKE_STRIP}
 
-                # Pass -isysroot=<SDK_PATH> option on Mac OS, see
-                # above.
-                # Note: Passing of CPPFLAGS / CFLAGS explicitly
-                # discards using of corresponsing environment
-                # variables.
-                CPPFLAGS=${LIBCURL_CPPFLAGS}
-                CFLAGS=${LIBCURL_CFLAGS}
+                    # Pass -isysroot=<SDK_PATH> option on Mac OS, see
+                    # above.
+                    # Note: Passing of CPPFLAGS / CFLAGS explicitly
+                    # discards using of corresponsing environment
+                    # variables.
+                    CPPFLAGS=${LIBCURL_CPPFLAGS}
+                    CFLAGS=${LIBCURL_CFLAGS}
 
-                # Pass empty LDFLAGS to discard using of
-                # corresponding environment variable.
-                # It is possible that a linker flag assumes that
-                # some compilation flag is set. We don't pass
-                # CFLAGS from environment, so we should not do it
-                # for LDFLAGS too.
-                LDFLAGS=
+                    # Pass empty LDFLAGS to discard using of
+                    # corresponding environment variable.
+                    # It is possible that a linker flag assumes that
+                    # some compilation flag is set. We don't pass
+                    # CFLAGS from environment, so we should not do it
+                    # for LDFLAGS too.
+                    LDFLAGS=
 
-                --prefix <INSTALL_DIR>
-                --enable-static
-                --enable-shared
+                    --prefix <INSTALL_DIR>
+                    --enable-static
+                    --enable-shared
 
-                --with-zlib
-                ${LIBCURL_OPENSSL_OPT}
-                --with-ca-fallback
+                    --with-zlib
+                    ${LIBCURL_OPENSSL_OPT}
+                    --with-ca-fallback
 
-                --without-brotli
-                --without-gnutls
-                --without-mbedtls
-                --without-cyassl
-                --without-wolfssl
-                --without-mesalink
-                --without-nss
-                --without-ca-bundle
-                --without-ca-path
-                --without-libpsl
-                --without-libmetalink
-                --without-librtmp
-                --without-winidn
-                --without-libidn2
-                --without-nghttp2
-                --without-ngtcp2
-                --without-nghttp3
-                --without-quiche
-                --without-zsh-functions-dir
-                --without-fish-functions-dir
+                    --without-brotli
+                    --without-gnutls
+                    --without-mbedtls
+                    --without-cyassl
+                    --without-wolfssl
+                    --without-mesalink
+                    --without-nss
+                    --without-ca-bundle
+                    --without-ca-path
+                    --without-libpsl
+                    --without-libmetalink
+                    --without-librtmp
+                    --without-winidn
+                    --without-libidn2
+                    --without-nghttp2
+                    --without-ngtcp2
+                    --without-nghttp3
+                    --without-quiche
+                    --without-zsh-functions-dir
+                    --without-fish-functions-dir
 
-                ${ENABLED_DNS_OPT}
-                --enable-http
-                --enable-proxy
-                --enable-ipv6
-                --enable-unix-sockets
-                --enable-cookies
-                --enable-http-auth
-                --enable-mime
-                --enable-dateparse
+                    ${ENABLED_DNS_OPT}
+                    --enable-http
+                    --enable-proxy
+                    --enable-ipv6
+                    --enable-unix-sockets
+                    --enable-cookies
+                    --enable-http-auth
+                    --enable-mime
+                    --enable-dateparse
 
-                ${DISABLED_DNS_OPT}
-                --disable-ftp
-                --disable-file
-                --disable-ldap
-                --disable-ldaps
-                --disable-rtsp
-                --disable-dict
-                --disable-telnet
-                --disable-tftp
-                --disable-pop3
-                --disable-imap
-                --disable-smb
-                --disable-smtp
-                --disable-gopher
-                --disable-manual
-                --disable-sspi
-                --disable-crypto-auth
-                --disable-ntlm-wb
-                --disable-tls-srp
-                --disable-doh
-                --disable-netrc
-                --disable-progress-meter
-                --disable-dnsshuffle
-                --disable-alt-svc
-        BUILD_COMMAND cd <BINARY_DIR> && $(MAKE)
-        INSTALL_COMMAND cd <BINARY_DIR> && $(MAKE) install)
+                    ${DISABLED_DNS_OPT}
+                    --disable-ftp
+                    --disable-file
+                    --disable-ldap
+                    --disable-ldaps
+                    --disable-rtsp
+                    --disable-dict
+                    --disable-telnet
+                    --disable-tftp
+                    --disable-pop3
+                    --disable-imap
+                    --disable-smb
+                    --disable-smtp
+                    --disable-gopher
+                    --disable-manual
+                    --disable-sspi
+                    --disable-crypto-auth
+                    --disable-ntlm-wb
+                    --disable-tls-srp
+                    --disable-doh
+                    --disable-netrc
+                    --disable-progress-meter
+                    --disable-dnsshuffle
+                    --disable-alt-svc
+            BUILD_COMMAND cd <BINARY_DIR> && $(MAKE)
+            INSTALL_COMMAND cd <BINARY_DIR> && $(MAKE) install)
+    else()
+        ExternalProject_Add(
+            bundled-libcurl-project
+            SOURCE_DIR ${LIBCURL_SOURCE_DIR}
+            PREFIX ${LIBCURL_INSTALL_DIR}
+            DOWNLOAD_DIR ${LIBCURL_BINARY_DIR}
+            TMP_DIR ${LIBCURL_BINARY_DIR}/tmp
+            STAMP_DIR ${LIBCURL_BINARY_DIR}/stamp
+            BINARY_DIR ${LIBCURL_BINARY_DIR}/curl
+            CONFIGURE_COMMAND
+	        cd <BINARY_DIR> && cmake <SOURCE_DIR>
+                    -DCPPFLAGS=${LIBCURL_CPPFLAGS}
+                    -DCFLAGS=${LIBCURL_CFLAGS}
+                    -DLDFLAGS=
+                    -DCMAKE_INSTALL_LIBDIR=lib
+                    -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
+                    -DBUILD_TESTING=OFF
+                    -DCURL_STATICLIB=ON
+                    -DBUILD_SHARED_LIBS=OFF
+                    -DCMAKE_USE_OPENSSL=ON
+                    -DOPENSSL_ROOT_DIR=${FOUND_OPENSSL_ROOT_DIR}
+                    -DCURL_CA_FALLBACK=ON
+                    -DCMAKE_FIND_ROOT_PATH=${CMAKE_FIND_ROOT_PATH}
+                    -DENABLE_ARES=${ENABLE_ARES}
+                    -DHTTP_ONLY=ON
+                    -DCURL_DISABLE_SMB=ON
+                    -DCURL_DISABLE_GOPHER=ON
+                    -DCURL_DISABLE_CRYPTO_AUTH=ON
+            BUILD_COMMAND cd <BINARY_DIR> && $(MAKE) -j
+            INSTALL_COMMAND cd <BINARY_DIR> && $(MAKE) install)
+    endif()
 
     add_library(bundled-libcurl STATIC IMPORTED GLOBAL)
     set_target_properties(bundled-libcurl PROPERTIES IMPORTED_LOCATION
