@@ -62,6 +62,7 @@ static void
 simple_test()
 {
 	header();
+	plan(1);
 
 	struct light_core ht;
 	light_create(&ht, light_extent_size,
@@ -80,7 +81,6 @@ simple_test()
 			hash_t fnd = light_find(&ht, h, val);
 			bool has1 = fnd != light_end;
 			bool has2 = vect[val];
-			assert(has1 == has2);
 			if (has1 != has2) {
 				fail("find key failed!", "true");
 				return;
@@ -118,7 +118,9 @@ simple_test()
 		}
 	}
 	light_destroy(&ht);
+	ok(1, "Simple test")
 
+	check_plan();
 	footer();
 }
 
@@ -126,6 +128,7 @@ static void
 collision_test()
 {
 	header();
+	plan(1);
 
 	struct light_core ht;
 	light_create(&ht, light_extent_size,
@@ -144,7 +147,6 @@ collision_test()
 			hash_t fnd = light_find(&ht, h * 1024, val);
 			bool has1 = fnd != light_end;
 			bool has2 = vect[val];
-			assert(has1 == has2);
 			if (has1 != has2) {
 				fail("find key failed!", "true");
 				return;
@@ -182,7 +184,9 @@ collision_test()
 		}
 	}
 	light_destroy(&ht);
+	ok(1, "Collision test")
 
+	check_plan();
 	footer();
 }
 
@@ -190,6 +194,7 @@ static void
 iterator_test()
 {
 	header();
+	plan(1);
 
 	struct light_core ht;
 	light_create(&ht, light_extent_size,
@@ -239,14 +244,17 @@ iterator_test()
 	if (strage_thing >> 20) {
 		printf("impossible!\n"); // prevent strage_thing to be optimized out
 	}
+	ok(1, "Iterator test")
 
 	footer();
+	check_plan();
 }
 
 static void
 iterator_freeze_check()
 {
 	header();
+	plan(1);
 
 	const int test_data_size = 1000;
 	hash_value_t comp_buf[test_data_size];
@@ -313,13 +321,16 @@ iterator_freeze_check()
 
 		light_destroy(&ht);
 	}
+	ok(1, "Iterator freeze test");
 
 	footer();
+	check_plan();
 }
 
 int
 main(int, const char**)
 {
+	plan(4);
 	srand(time(0));
 	simple_test();
 	collision_test();
@@ -327,4 +338,5 @@ main(int, const char**)
 	iterator_freeze_check();
 	if (extents_count != 0)
 		fail("memory leak!", "true");
+	check_plan();
 }

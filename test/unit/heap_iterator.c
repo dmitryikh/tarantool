@@ -43,6 +43,7 @@ static void
 test_iterator_create()
 {
 	header();
+	plan(1);
 	struct test_type *value, *root_value;
 	heap_t heap;
 	test_heap_create(&heap);
@@ -59,6 +60,8 @@ test_iterator_create()
 
 	free_all_nodes(&heap);
 
+	ok(1, "test iterator create");
+	check_plan();
 	footer();
 }
 
@@ -66,6 +69,7 @@ static void
 test_iterator_empty()
 {
 	header();
+	plan(1);
 	heap_t heap;
 	test_heap_create(&heap);
 
@@ -79,6 +83,8 @@ test_iterator_empty()
 
 	free_all_nodes(&heap);
 
+	ok(1, "test iterator empty");
+	check_plan();
 	footer();
 }
 
@@ -87,6 +93,7 @@ static void
 test_iterator_small()
 {
 	header();
+	plan(1);
 	struct test_type *value;
 	heap_t heap;
 	test_heap_create(&heap);
@@ -128,6 +135,8 @@ test_iterator_small()
 		fail("after all iterator returns not NULL", "value != NULL");
 
 	free_all_nodes(&heap);
+	ok(1, "test iterator small");
+	check_plan();
 	footer();
 }
 
@@ -135,6 +144,7 @@ static void
 test_iterator_large()
 {
 	header();
+	plan(1);
 	uint32_t const TEST_CASE_SIZE = 1000;
 	struct test_type *value;
 	heap_t heap;
@@ -180,6 +190,8 @@ test_iterator_large()
 		     "value != NULL");
 
 	free_all_nodes(&heap);
+	ok(1, "test iterator large");
+	check_plan();
 	footer();
 }
 
@@ -188,8 +200,10 @@ int
 main(int argc, const char** argv)
 {
 	srand(179);
+	plan(4);
 	test_iterator_create();
 	test_iterator_empty();
 	test_iterator_small();
 	test_iterator_large();
+	check_plan();
 }

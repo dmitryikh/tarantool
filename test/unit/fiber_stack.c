@@ -97,6 +97,8 @@ main_f(va_list ap)
 
 int main()
 {
+	header();
+	plan(1);
 	memory_init();
 	fiber_init(fiber_c_invoke);
 	fiber_attr_create(&default_attr);
@@ -105,5 +107,6 @@ int main()
 	ev_run(loop(), 0);
 	fiber_free();
 	memory_free();
+	check_plan();
 	return 0;
 }

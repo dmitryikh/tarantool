@@ -31,19 +31,20 @@ extent_free(void *ctx, void *page)
 static void
 simple_check()
 {
+	header();
+	plan(1);
+
 	struct rtree_rect rect;
 	struct rtree_iterator iterator;
 	rtree_iterator_init(&iterator);
 	const size_t rounds = 2000;
-
-	header();
 
 	struct rtree tree;
 	rtree_init(&tree, 2, extent_size,
 		   extent_alloc, extent_free, &page_count,
 		   RTREE_EUCLID);
 
-	printf("Insert 1..X, remove 1..X\n");
+	note("Insert 1..X, remove 1..X");
 	for (size_t i = 1; i <= rounds; i++) {
 		record_t rec = (record_t)i;
 
@@ -82,7 +83,7 @@ simple_check()
 		fail("Tree count mismatch (1)", "true");
 	}
 
-	printf("Insert 1..X, remove X..1\n");
+	note("Insert 1..X, remove X..1");
 	for (size_t i = 1; i <= rounds; i++) {
 		record_t rec = (record_t)i;
 
@@ -122,7 +123,7 @@ simple_check()
 	}
 
 
-	printf("Insert X..1, remove 1..X\n");
+	note("Insert X..1, remove 1..X");
 	for (size_t i = rounds; i != 0; i--) {
 		record_t rec = (record_t)i;
 
@@ -162,7 +163,7 @@ simple_check()
 	}
 
 
-	printf("Insert X..1, remove X..1\n");
+	note("Insert X..1, remove X..1");
 	for (size_t i = rounds; i != 0; i--) {
 		record_t rec = (record_t)i;
 
@@ -205,8 +206,10 @@ simple_check()
 	rtree_destroy(&tree);
 
 	rtree_iterator_destroy(&iterator);
+	ok(1, "simple test");
 
 	footer();
+	check_plan();
 }
 
 static void
@@ -222,6 +225,7 @@ static void
 neighbor_test()
 {
 	header();
+	plan(1);
 
 	const unsigned int test_count = 1000;
 	struct rtree_rect arr[test_count];
@@ -271,17 +275,21 @@ neighbor_test()
 		fail("something found from empty iterator ", "true");
 	}
 	rtree_iterator_destroy(&iterator);
+	ok(1, "neighbor test");
 
 	footer();
+	check_plan();
 }
 
 
 int
 main(void)
 {
+	plan(2);
 	simple_check();
 	neighbor_test();
 	if (page_count != 0) {
 		fail("memory leak!", "true");
 	}
+	check_plan();
 }

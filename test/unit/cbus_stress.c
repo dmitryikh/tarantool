@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -94,25 +93,25 @@ thread_func(va_list ap);
 static void
 thread_create(struct thread *t, int id)
 {
-	assert(thread_count > 1);
-	assert(id >= 0 && id < thread_count);
+	fail_if(thread_count <= 1);
+	fail_if(!(id >= 0 && id < thread_count));
 
 	const int neighbor_count = thread_count - 1;
 
 	t->id = id;
 	snprintf(t->name, sizeof(t->name), "thread_%d", id);
-	assert(t->name != NULL);
+	fail_if(t->name == NULL);
 
 	t->connections = calloc(thread_count, sizeof(*t->connections));
-	assert(t->connections != NULL);
+	fail_if(t->connections == NULL);
 
 	t->connected_count = 0;
 	t->connected = calloc(neighbor_count, sizeof(*t->connected));
-	assert(t->connected != NULL);
+	fail_if(t->connected == NULL);
 
 	t->disconnected_count = 0;
 	t->disconnected = calloc(neighbor_count, sizeof(*t->disconnected));
-	assert(t->disconnected != NULL);
+	fail_if(t->disconnected == NULL);
 
 	/* Initially, we are not connected to anyone. */
 	for (int i = 0; i < thread_count; i++) {
@@ -120,7 +119,7 @@ thread_create(struct thread *t, int id)
 			continue; /* can't connect to self */
 		t->disconnected[t->disconnected_count++] = i;
 	}
-	assert(t->disconnected_count == neighbor_count);
+	fail_if(t->disconnected_count != neighbor_count);
 
 	t->sent = t->received = 0;
 	active_thread_count++;
@@ -139,7 +138,7 @@ thread_start_test_cb(struct cmsg *cmsg)
 {
 	struct thread *t = container_of(cmsg, struct thread, cmsg);
 	struct fiber *test_fiber = fiber_new("test", test_func);
-	assert(test_fiber != NULL);
+	fail_if(test_fiber == NULL);
 	fiber_start(test_fiber, t);
 }
 
@@ -173,10 +172,10 @@ thread_destroy(struct thread *t)
 static void
 thread_connect(struct thread *t, int dest_id)
 {
-	assert(dest_id != t->id);
-	assert(dest_id < thread_count);
+	fail_if(dest_id == t->id);
+	fail_if(dest_id >= thread_count);
 	struct conn *conn = &t->connections[dest_id];
-	assert(!conn->active);
+	fail_if(conn->active);
 	cbus_pair(thread_name(dest_id), t->name,
 		  &conn->to, &conn->from, NULL, NULL, NULL);
 	conn->active = true;
@@ -186,10 +185,10 @@ thread_connect(struct thread *t, int dest_id)
 static void
 thread_disconnect(struct thread *t, int dest_id)
 {
-	assert(dest_id != t->id);
-	assert(dest_id < thread_count);
+	fail_if(dest_id == t->id);
+	fail_if(dest_id >= thread_count);
 	struct conn *conn = &t->connections[dest_id];
-	assert(conn->active);
+	fail_if(!(conn->active));
 	cbus_unpair(&conn->to, &conn->from, NULL, NULL, NULL);
 	conn->active = false;
 }
@@ -198,8 +197,8 @@ thread_disconnect(struct thread *t, int dest_id)
 static void
 thread_connect_random(struct thread *t)
 {
-	assert(t->disconnected_count > 0);
-	assert(t->connected_count + t->disconnected_count == thread_count - 1);
+	fail_if(t->disconnected_count <= 0);
+	fail_if(t->connected_count + t->disconnected_count != thread_count - 1);
 	int idx = rand() % t->disconnected_count;
 	int dest_id = t->disconnected[idx];
 	t->disconnected[idx] = t->disconnected[--t->disconnected_count];
@@ -211,8 +210,8 @@ thread_connect_random(struct thread *t)
 static void
 thread_disconnect_random(struct thread *t)
 {
-	assert(t->connected_count > 0);
-	assert(t->connected_count + t->disconnected_count == thread_count - 1);
+	fail_if(t->connected_count <= 0);
+	fail_if(t->connected_count + t->disconnected_count != thread_count - 1);
 	int idx = rand() % t->connected_count;
 	int dest_id = t->connected[idx];
 	t->connected[idx] = t->connected[--t->connected_count];
@@ -242,9 +241,9 @@ thread_send(struct thread *t, int dest_id)
 		{ thread_msg_received_cb, NULL }
 	};
 	struct conn *c = &t->connections[dest_id];
-	assert(c->active);
+	fail_if(!(c->active));
 	struct thread_msg *msg = malloc(sizeof(*msg));
-	assert(msg != NULL);
+	fail_if(msg == NULL);
 	cmsg_init(&msg->cmsg, route);
 	msg->dest_id = dest_id;
 	cpipe_push(&c->to, &msg->cmsg);
@@ -255,7 +254,7 @@ thread_send(struct thread *t, int dest_id)
 static void
 thread_send_random(struct thread *t)
 {
-	assert(t->connected_count > 0);
+	fail_if(t->connected_count <= 0);
 	int idx = rand() % t->connected_count;
 	int dest_id = t->connected[idx];
 	thread_send(t, dest_id);
@@ -276,7 +275,7 @@ static void
 test_complete_cb(struct cmsg *cmsg)
 {
 	(void)cmsg;
-	assert(active_thread_count > 0);
+	fail_if(active_thread_count <= 0);
 	if (--active_thread_count == 0) {
 		/* Stop the main fiber when all workers are done. */
 		fiber_cancel(fiber());
@@ -334,7 +333,7 @@ main_func(va_list ap)
 	cbus_endpoint_create(&endpoint, "main", fiber_schedule_cb, fiber());
 
 	threads = calloc(thread_count, sizeof(*threads));
-	assert(threads != NULL);
+	fail_if(threads == NULL);
 
 	for (int i = 0; i < thread_count; i++)
 		thread_create(&threads[i], i);
@@ -351,7 +350,7 @@ main_func(va_list ap)
 		received += t->received;
 		thread_destroy(t);
 	}
-	assert(sent == received);
+	fail_if(sent != received);
 
 	cbus_endpoint_destroy(&endpoint, cbus_process);
 
@@ -373,12 +372,14 @@ main()
 	cbus_init();
 
 	header();
+	plan(1);
 
 	struct fiber *main_fiber = fiber_new("main", main_func);
-	assert(main_fiber != NULL);
+	isnt(main_fiber, NULL, "fiber started");
 	fiber_wakeup(main_fiber);
 	ev_run(loop(), 0);
 
+	check_plan();
 	footer();
 
 	cbus_free();

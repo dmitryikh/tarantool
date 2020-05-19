@@ -21,12 +21,15 @@ static void
 correctness_check()
 {
 	header();
+	plan(1);
 	int64_t i_vals[] = {0, 1, 2};
 	for (size_t i = 0; i < sizeof(i_vals) / sizeof(int64_t); ++i)
 		check_guava_correctness(i_vals[i]);
 	srand(time(NULL));
 	for (size_t i = 0; i < 20; ++i)
 		check_guava_correctness(rand() % 7);
+	ok(1, "correctness check");
+	check_plan();
 	footer();
 }
 
@@ -34,7 +37,10 @@ static void
 sameresult_check()
 {
 	header();
+	plan(1);
 	fail_if(guava(100, 20) != guava(100, 20));
+	ok(1, "sameresult check");
+	check_plan();
 	footer();
 }
 
@@ -42,6 +48,7 @@ static void
 lcg_compat_check()
 {
 	header();
+	plan(1);
 	int32_t golden100[] = {
 		0, 55, 62, 8, 45, 59, 86, 97, 82, 59,
 		73, 37, 17, 56, 86, 21, 90, 37, 38, 83
@@ -55,13 +62,17 @@ lcg_compat_check()
 	fail_if(80343 != guava(2, 100001));
 	fail_if(22152 != guava(2201, 100001));
 	fail_if(15018 != guava(2202, 100001));
+	ok(1, "lcg compat check");
+	check_plan();
 	footer();
 }
 
 int
 main(void)
 {
+	plan(3);
 	correctness_check();
 	lcg_compat_check();
 	sameresult_check();
+	check_plan();
 }

@@ -31,6 +31,7 @@ static void
 iterator_check()
 {
 	header();
+	plan(1);
 
 	struct rtree tree;
 	rtree_init(&tree, 2, extent_size,
@@ -53,7 +54,7 @@ iterator_check()
 			rtree_insert(&tree, &rect, record_t(++count));
 		}
 	}
-	printf("Test tree size: %d\n", (int)rtree_number_of_records(&tree));
+	note("Test tree size: %d", (int)rtree_number_of_records(&tree));
 
 	/* Test that tree filled ok */
 	for (size_t i = 0; i < count1; i++) {
@@ -81,8 +82,8 @@ iterator_check()
 
 	/* Print 7 elems closest to coordinate basis */
 	{
+		fprintf(stderr, "--> ");
 		static struct rtree_rect basis;
-		printf("--> ");
 		if (!rtree_search(&tree, &basis, SOP_NEIGHBOR, &iterator)) {
 			fail("Integrity check failed (5)", "false");
 		}
@@ -91,13 +92,13 @@ iterator_check()
 			if (rec == 0) {
 				fail("Integrity check failed (6)", "false");
 			}
-			printf("%p ", rec);
+			fprintf(stderr, "%p ", rec);
 		}
-		printf("\n");
+		fprintf(stderr, "\n");
 	}
 	/* Print 7 elems closest to the point [(count1-1)*count2*2, (count1-1)*count2*2] */
 	{
-		printf("<-- ");
+		fprintf(stderr, "<-- ");
 		coord_t coord = (count1 - 1) * count2 * 2;
 		rtree_set2d(&rect, coord, coord, coord, coord);
 		if (!rtree_search(&tree, &rect, SOP_NEIGHBOR, &iterator)) {
@@ -108,9 +109,9 @@ iterator_check()
 			if (rec == 0) {
 				fail("Integrity check failed (6)", "false");
 			}
-			printf("%p ", rec);
+			fprintf(stderr, "%p ", rec);
 		}
-		printf("\n");
+		fprintf(stderr, "\n");
 	}
 
 	/* Test strict belongs */
@@ -192,6 +193,8 @@ iterator_check()
 	rtree_iterator_destroy(&iterator);
 	rtree_destroy(&tree);
 
+	ok(1, "iterator check");
+	check_plan();
 	footer();
 }
 
@@ -199,6 +202,7 @@ static void
 iterator_invalidate_check()
 {
 	header();
+	plan(1);
 
 	const size_t test_size = 300;
 	const size_t max_delete_count = 100;
@@ -299,15 +303,21 @@ iterator_invalidate_check()
 		rtree_destroy(&tree);
 	}
 
+	ok(1, "iterator invalidate check");
+	check_plan();
 	footer();
 }
 
 int
 main(void)
 {
+	header();
+	plan(2);
 	iterator_check();
 	iterator_invalidate_check();
 	if (extent_count != 0) {
 		fail("memory leak!", "false");
 	}
+	check_plan();
+	footer();
 }

@@ -7,7 +7,7 @@ static struct fiber_attr default_attr;
 static void
 sigsegf_handler(int signo)
 {
-	note("signal handler called");
+	ok(1, "signal handler called");
 	exit(0);
 }
 
@@ -53,6 +53,7 @@ main_f(va_list ap)
 
 int main()
 {
+	plan(1);
 	memory_init();
 	fiber_init(fiber_cxx_invoke);
 	fiber_attr_create(&default_attr);

@@ -74,6 +74,7 @@ static void
 fiber_join_test()
 {
 	header();
+	plan(1);
 
 	struct fiber *fiber = fiber_new_xc("join", noop_f);
 	fiber_set_joinable(fiber, true);
@@ -98,7 +99,7 @@ fiber_join_test()
 		note("exception propagated");
 	}
 
-	fputs("#gh-1238: log uncaught errors\n", stderr);
+	note("log uncaught errors (gh-1238)");
 	fiber = fiber_new_xc("exception", exception_f);
 	fiber_wakeup(fiber);
 
@@ -123,7 +124,9 @@ fiber_join_test()
 	note("by this time the fiber should be dead already");
 	fiber_cancel(fiber);
 	fiber_join(fiber);
-
+	
+	ok(1, "fiber join test");
+	check_plan();
 	footer();
 }
 
@@ -131,6 +134,7 @@ void
 fiber_stack_test()
 {
 	header();
+	plan(1);
 
 	struct fiber *fiber;
 	struct fiber_attr *fiber_attr;
@@ -158,6 +162,8 @@ fiber_stack_test()
 	fiber_sleep(0);
 	note("big-stack fiber not crashed");
 
+	ok(1, "fiber stack test");
+	check_plan();
 	footer();
 }
 
@@ -165,11 +171,12 @@ void
 fiber_name_test()
 {
 	header();
-	note("name of a new fiber: %s.\n", fiber_name(fiber()));
+	plan(1);
+	note("name of a new fiber: %s", fiber_name(fiber()));
 
 	fiber_set_name(fiber(), "Horace");
 
-	note("set new fiber name: %s.\n", fiber_name(fiber()));
+	note("set new fiber name: %s", fiber_name(fiber()));
 
 	char long_name[FIBER_NAME_MAX + 30];
 	memset(long_name, 'a', sizeof(long_name));
@@ -177,17 +184,21 @@ fiber_name_test()
 
 	fiber_set_name(fiber(), long_name);
 
-	note("fiber name is truncated: %s.\n", fiber_name(fiber()));
+	note("fiber name is truncated: %s", fiber_name(fiber()));
+	ok(1, "fiber name test");
+	check_plan();
 	footer();
 }
 
 static int
 main_f(va_list ap)
 {
+	plan(3);
 	fiber_name_test();
 	fiber_join_test();
 	fiber_stack_test();
 	ev_break(loop(), EVBREAK_ALL);
+	check_plan();
 	return 0;
 }
 

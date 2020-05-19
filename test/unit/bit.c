@@ -2,7 +2,6 @@
 
 #include <stdio.h>
 #include <inttypes.h>
-#include <assert.h>
 #include <stdlib.h>
 
 #include "unit.h"
@@ -21,6 +20,7 @@ static void
 test_ctz_clz(void)
 {
 	header();
+	plan(1);
 
 	for (size_t i = 0; i < sizeof(vals) / sizeof(vals[0]); i++) {
 		if (vals[i] == 0)
@@ -29,20 +29,22 @@ test_ctz_clz(void)
 		uint64_t val64 = vals[i];
 		uint32_t val32 = (uint32_t) vals[i];
 
-		printf("bit_ctz_u64(%" PRIu64 ") => %d\n", val64,
+		note("bit_ctz_u64(%" PRIu64 ") => %d", val64,
 			bit_ctz_u64(val64));
-		printf("bit_clz_u64(%" PRIu64 ") => %d\n", val64,
+		note("bit_clz_u64(%" PRIu64 ") => %d", val64,
 			bit_clz_u64(val64));
 
 		if (vals[i] > UINT32_MAX)
 			continue;
 
-		printf("bit_ctz_u32(%" PRIu32 ") => %d\n", val32,
+		note("bit_ctz_u32(%" PRIu32 ") => %d", val32,
 			bit_ctz_u32(val32));
-		printf("bit_clz_u32(%" PRIu32 ") => %d\n", val32,
+		note("bit_clz_u32(%" PRIu32 ") => %d", val32,
 			bit_clz_u32(val32));
 	}
 
+	ok(1, "test ctz clz");
+	check_plan();
 	footer();
 }
 
@@ -50,21 +52,24 @@ static void
 test_count(void)
 {
 	header();
+	plan(1);
 
 	for (size_t i = 0; i < sizeof(vals) / sizeof(vals[0]); i++) {
 		uint64_t val64 = vals[i];
 		uint32_t val32 = (uint32_t) vals[i];
 
-		printf("bit_count_u64(%" PRIu64 ") => %d\n", val64,
+		note("bit_count_u64(%" PRIu64 ") => %d", val64,
 			bit_count_u64(val64));
 
 		if (vals[i] > UINT32_MAX)
 			continue;
 
-		printf("bit_count_u32(%" PRIu32 ") => %d\n", val32,
+		note("bit_count_u32(%" PRIu32 ") => %d", val32,
 			bit_count_u32(val32));
 	}
 
+	ok(1, "test count");
+	check_plan();
 	footer();
 }
 
@@ -75,17 +80,17 @@ test_rotl_rotr_one(int rot)
 		uint64_t val64 = vals[i];
 		uint32_t val32 = (uint32_t) vals[i];
 
-		printf("bit_rotl_u64(%" PRIu64 ", %d) => %" PRIu64 "\n",
+		note("bit_rotl_u64(%" PRIu64 ", %d) => %" PRIu64,
 		       val64, rot, bit_rotl_u64(val64, rot));
-		printf("bit_rotr_u64(%" PRIu64 ", %d) => %" PRIu64 "\n",
+		note("bit_rotr_u64(%" PRIu64 ", %d) => %" PRIu64,
 		       val64, rot, bit_rotr_u64(val64, rot));
 
 		if (vals[i] > UINT32_MAX || rot > 32)
 			continue;
 
-		printf("bit_rotl_u32(%" PRIu32 ", %d) => %" PRIu32 "\n",
+		note("bit_rotl_u32(%" PRIu32 ", %d) => %" PRIu32,
 		       val32, rot, bit_rotl_u32(val32, rot));
-		printf("bit_rotr_u32(%" PRIu32 ", %d) => %" PRIu32 "\n",
+		note("bit_rotr_u32(%" PRIu32 ", %d) => %" PRIu32,
 		       val32, rot, bit_rotr_u32(val32, rot));
 	}
 }
@@ -94,12 +99,15 @@ static void
 test_rotl_rotr(void)
 {
 	header();
+	plan(1);
 
 	int rots[] = { 0, 1, 15, 16, 31, 32, 63, 64 };
 	for (unsigned r = 0; r < sizeof(rots) / sizeof(rots[0]); r++) {
 		test_rotl_rotr_one(rots[r]);
 	}
 
+	ok(1, "test rotl rotr");
+	check_plan();
 	footer();
 }
 
@@ -107,36 +115,42 @@ static void
 test_bswap(void)
 {
 	header();
+	plan(1);
 
 	for (size_t i = 0; i < sizeof(vals) / sizeof(vals[0]); i++) {
 		uint64_t val64 = vals[i];
 		uint32_t val32 = (uint32_t) vals[i];
 
-		printf("bswap_u64(%" PRIu64 ") => %" PRIu64 "\n", val64,
+		note("bswap_u64(%" PRIu64 ") => %" PRIu64, val64,
 			bswap_u64(val64));
 
 		if (vals[i] > UINT32_MAX)
 			continue;
 
-		printf("bswap_u32(%" PRIu32 ") => %" PRIu32 "\n", val32,
+		note("bswap_u32(%" PRIu32 ") => %" PRIu32, val32,
 			bswap_u32(val32));
 	}
 
+	ok(1, "test bswap");
+	check_plan();
 	footer();
 }
 
 static inline void
 test_index_print(const int *start, const int *end)
 {
+	/*
 	for (const int *cur = start; cur < end; cur++) {
 		printf("%d ", *cur);
 	}
+	*/
 }
 
 static void
 test_index(void)
 {
 	header();
+	plan(1);
 
 	int indexes[sizeof(int64_t) * CHAR_BIT + 1];
 
@@ -144,18 +158,20 @@ test_index(void)
 		uint64_t val64 = vals[i];
 		uint32_t val32 = (uint32_t) vals[i];
 
-		printf("bit_index_u64(%" PRIu64 ", *, -1) => ", val64);
+		//printf("bit_index_u64(%" PRIu64 ", *, -1) => ", val64);
 		test_index_print(indexes, bit_index_u64(val64, indexes, -1));
-		printf("\n");
+		//printf("\n");
 
 		if (vals[i] > UINT32_MAX)
 			continue;
 
-		printf("bit_index_u32(%" PRIu32 ", *, -1) => ", val32);
+		//printf("bit_index_u32(%" PRIu32 ", *, -1) => ", val32);
 		test_index_print(indexes, bit_index_u32(val32, indexes, -1));
-		printf("\n");
+		//printf("\n");
 	}
 
+	ok(1, "test index");
+	check_plan();
 	footer();
 }
 
@@ -164,6 +180,7 @@ static void
 test_bit_iter(void)
 {
 	header();
+	plan(1);
 
 	struct bit_iterator it;
 	uint64_t *data = vals + 6;
@@ -171,22 +188,24 @@ test_bit_iter(void)
 
 	size_t pos = 0;
 
-	printf("Set: ");
+	note("Set: ");
 	bit_iterator_init(&it, data, size, true);
 	while ( (pos = bit_iterator_next(&it)) != SIZE_MAX) {
-		printf("%zu, ", pos);
+		//printf("%zu, ", pos);
 		fail_unless(bit_test(data, pos));
 	}
-	printf("\n");
+	//printf("\n");
 
-	printf("Clear: ");
+	note("Clear: ");
 	bit_iterator_init(&it, data, size, false);
 	while ( (pos = bit_iterator_next(&it)) != SIZE_MAX) {
-		printf("%zu, ", pos);
+		//printf("%zu, ", pos);
 		fail_if(bit_test(data, pos));
 	}
-	printf("\n");
+	//printf("\n");
 
+	ok(1, "test bit iter");
+	check_plan();
 	footer();
 }
 
@@ -194,6 +213,7 @@ static void
 test_bit_iter_empty(void)
 {
 	header();
+	plan(1);
 
 	struct bit_iterator it;
 
@@ -202,7 +222,9 @@ test_bit_iter_empty(void)
 
 	bit_iterator_init(&it, NULL, 0, false);
 	fail_unless(bit_iterator_next(&it) == SIZE_MAX);
-
+	
+	ok(1, "test bit iter empty");
+	check_plan();
 	footer();
 }
 
@@ -210,6 +232,7 @@ static void
 test_bitmap_size(void)
 {
 	header();
+	plan(1);
 	fail_unless(bitmap_size(1) == sizeof(long));
 	fail_unless(bitmap_size(10) == sizeof(long));
 	fail_unless(bitmap_size(sizeof(long) * CHAR_BIT) == sizeof(long));
@@ -217,12 +240,15 @@ test_bitmap_size(void)
 	fail_unless(bitmap_size(sizeof(long) * CHAR_BIT * 4) == sizeof(long) * 4);
 	fail_unless(bitmap_size(sizeof(long) * CHAR_BIT * 4 - 1) == sizeof(long) * 4);
 	fail_unless(bitmap_size(sizeof(long) * CHAR_BIT * 9 / 2) == sizeof(long) * 5);
+	ok(1, "test bitmap size");
+	check_plan();
 	footer();
 }
 
 int
 main(void)
 {
+	plan(8);
 	test_ctz_clz();
 	test_count();
 	test_rotl_rotr();
@@ -231,4 +257,5 @@ main(void)
 	test_bit_iter();
 	test_bit_iter_empty();
 	test_bitmap_size();
+	check_plan();
 }

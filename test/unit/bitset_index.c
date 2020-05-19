@@ -42,6 +42,7 @@ static
 void test_size_and_count(void)
 {
 	header();
+	plan(1);
 
 	struct tt_bitset_index index;
 	tt_bitset_index_create(&index, realloc);
@@ -60,8 +61,10 @@ void test_size_and_count(void)
 	fail_unless(tt_bitset_index_count(&index, 2147483648) == 0);
 
 	tt_bitset_index_destroy(&index);
+	ok(1, "test size and count");
 
 	footer();
+	check_plan();
 }
 
 static
@@ -73,7 +76,7 @@ void check_keys(struct tt_bitset_index *index,
 	struct tt_bitset_expr expr;
 	tt_bitset_expr_create(&expr, realloc);
 
-	printf("Checking keys... ");
+	note("Checking keys... ");
 	for (size_t i = 0; i < size; i++) {
 		/* ignore removed keys */
 		if (keys[i] == SIZE_MAX) {
@@ -97,7 +100,7 @@ void check_keys(struct tt_bitset_index *index,
 		}
 		fail_unless(pair_found);
 	}
-	printf("ok\n");
+	note("ok");
 
 	tt_bitset_iterator_destroy(&it);
 	tt_bitset_expr_destroy(&expr);
@@ -107,6 +110,7 @@ static
 void test_insert_remove(void)
 {
 	header();
+	plan(1);
 
 	struct tt_bitset_index index;
 	tt_bitset_index_create(&index, realloc);
@@ -117,36 +121,36 @@ void test_insert_remove(void)
 
 	size_t count0 = 0;
 	size_t count1 = 0;
-	printf("Generating test set... ");
+	note("Generating test set... ");
 	for(size_t i = 0; i < NUMS_SIZE; i++) {
 		keys[i] = rand();
 		values[i] = rand();
 		count0 += (keys[i] & 1) != 0 ? 1 : 0;
 		count1 += (keys[i] & 2) != 0 ? 1 : 0;
 	}
-	printf("ok\n");
+	note("ok");
 
-	printf("Inserting pairs... ");
+	note("Inserting pairs... ");
 	for(size_t i = 0; i < NUMS_SIZE; i++) {
 		tt_bitset_index_insert(&index, &keys[i], sizeof(keys[i]),
 				       values[i]);
 
 	}
-	printf("ok\n");
+	note("ok");
 
 	check_keys(&index, keys, values, NUMS_SIZE);
 
 	fail_unless(tt_bitset_index_count(&index, 0) == count0);
 	fail_unless(tt_bitset_index_count(&index, 1) == count1);
 
-	printf("Removing random pairs... ");
+	note("Removing random pairs... ");
 	for(size_t i = 0; i < NUMS_SIZE; i++) {
 		if (rand() % 5 == 0) {
 			tt_bitset_index_remove_value(&index, values[i]);
 			keys[i] = SIZE_MAX;
 		}
 	}
-	printf("ok\n");
+	note("ok");
 
 	check_keys(&index, keys, values, NUMS_SIZE);
 
@@ -154,8 +158,10 @@ void test_insert_remove(void)
 
 	free(keys);
 	free(values);
+	ok(1, "test_insert_remove");
 
 	footer();
+	check_plan();
 }
 
 
@@ -222,7 +228,10 @@ static void
 test_empty_simple(void)
 {
 	header();
+	plan(1);
 	test_simple(1, 0); /* empty result */
+	ok(1, "test empty simple");
+	check_plan();
 	footer();
 }
 
@@ -230,7 +239,10 @@ static void
 test_all_simple(void)
 {
 	header();
+	plan(1);
 	test_simple(0, 0);  /* all */
+	ok(1, "test all simple");
+	check_plan();
 	footer();
 }
 
@@ -238,8 +250,11 @@ static void
 test_all_set_simple(void)
 {
 	header();
+	plan(1);
 	size_t search_mask = 66; /* 0b1000010 */
 	test_simple(1, search_mask);  /* all bits set */
+	ok(1, "test all set simple");
+	check_plan();
 	footer();
 }
 
@@ -247,8 +262,11 @@ static void
 test_any_set_simple(void)
 {
 	header();
+	plan(1);
 	size_t search_mask = 66; /* 0b1000010 */
 	test_simple(2, search_mask);  /* any bits set */
+	ok(1, "test any set simple");
+	check_plan();
 	footer();
 }
 
@@ -256,6 +274,7 @@ static
 void test_equals_simple(void)
 {
 	header();
+	plan(1);
 
 	struct tt_bitset_index index;
 	tt_bitset_index_create(&index, realloc);
@@ -284,13 +303,17 @@ void test_equals_simple(void)
 	tt_bitset_expr_destroy(&expr);
 	tt_bitset_iterator_destroy(&it);
 	tt_bitset_index_destroy(&index);
+	ok(1, "test equals simple");
 
+	check_plan();
 	footer();
 }
 
 int main(void)
 {
 	setbuf(stdout, NULL);
+	header();
+	plan(7);
 
 	test_size_and_count();
 	test_resize();
@@ -300,6 +323,9 @@ int main(void)
 	test_all_set_simple();
 	test_any_set_simple();
 	test_equals_simple();
+
+	check_plan();
+	footer();
 
 	return 0;
 }

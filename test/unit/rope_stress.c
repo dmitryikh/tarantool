@@ -8,6 +8,7 @@ static void
 test_rope_stress_small()
 {
 	header();
+	plan(1);
 
 	struct rope *rope = test_rope_new();
 	const int iterations = 500;
@@ -29,7 +30,9 @@ test_rope_stress_small()
 		rope_check(rope);
 	}
 	rope_delete(rope);
+	ok(1, "test rope stress small");
 
+	check_plan();
 	footer();
 }
 
@@ -37,6 +40,7 @@ static void
 test_rope_stress_large()
 {
 	header();
+	plan(1);
 
 	struct rope *rope = test_rope_new();
 	const int iterations = 50000;
@@ -58,14 +62,18 @@ test_rope_stress_large()
 			rope_check(rope);
 	}
 	rope_delete(rope);
+	ok(1, "test rope stress large");
 
+	check_plan();
 	footer();
 }
 int
 main()
 {
+	plan(2);
 	srand(time(NULL));
 	test_rope_stress_small();
 	test_rope_stress_large();
+	check_plan();
 	return 0;
 }

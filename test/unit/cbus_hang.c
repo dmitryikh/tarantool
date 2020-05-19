@@ -33,7 +33,7 @@ pthread_cond_t endpoint_hack_cond_2;
 static
 void join_fail(int signum) {
 	(void)signum;
-	printf("Can't join the hang worker\n");
+	diag("Can't join the hang worker\n");
 	exit(EXIT_FAILURE);
 }
 

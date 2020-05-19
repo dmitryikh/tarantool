@@ -80,6 +80,7 @@ static
 void test_empty_expr(void)
 {
 	header();
+	plan(1);
 
 	struct tt_bitset_expr expr;
 	tt_bitset_expr_create(&expr, realloc);
@@ -94,6 +95,8 @@ void test_empty_expr(void)
 
 	tt_bitset_iterator_destroy(&it);
 
+	ok(1, "test empty expr")
+	check_plan();
 	footer();
 }
 
@@ -101,6 +104,7 @@ static
 void test_empty_expr_conj1(void)
 {
 	header();
+	plan(1);
 
 	struct tt_bitset_expr expr;
 	tt_bitset_expr_create(&expr, realloc);
@@ -117,6 +121,8 @@ void test_empty_expr_conj1(void)
 
 	tt_bitset_iterator_destroy(&it);
 
+	ok(1, "test empty expr conj1");
+	check_plan();
 	footer();
 }
 
@@ -124,6 +130,7 @@ static
 void test_empty_expr_conj2(void)
 {
 	header();
+	plan(1);
 
 	size_t big_i = (size_t) 1 << 15;
 	struct tt_bitset **bitsets = bitsets_create(2);
@@ -154,6 +161,8 @@ void test_empty_expr_conj2(void)
 	tt_bitset_iterator_destroy(&it);
 	bitsets_destroy(bitsets, 2);
 
+	ok(1, "test empty expr conj2");
+	check_plan();
 	footer();
 }
 
@@ -161,6 +170,7 @@ static
 void test_empty_result(void)
 {
 	header();
+	plan(1);
 
 	struct tt_bitset **bitsets = bitsets_create(2);
 
@@ -199,6 +209,8 @@ void test_empty_result(void)
 
 	bitsets_destroy(bitsets, 2);
 
+	ok(1, "test empty result");
+	check_plan();
 	footer();
 }
 
@@ -206,6 +218,7 @@ static
 void test_first_result(void)
 {
 	header();
+	plan(1);
 
 	struct tt_bitset **bitsets = bitsets_create(2);
 
@@ -237,6 +250,8 @@ void test_first_result(void)
 
 	bitsets_destroy(bitsets, 2);
 
+	ok(1, "test first result");
+	check_plan();
 	footer();
 }
 
@@ -244,6 +259,7 @@ static
 void test_simple()
 {
 	header();
+	plan(1);
 
 	enum { BITSETS_SIZE = 32 };
 
@@ -286,12 +302,15 @@ void test_simple()
 	tt_bitset_iterator_destroy(&it);
 	bitsets_destroy(bitsets, BITSETS_SIZE);
 
+	ok(1, "test simple");
+	check_plan();
 	footer();
 }
 
 static
 void test_big() {
 	header();
+	plan(1);
 
 	const size_t BITSETS_SIZE = 32;
 	struct tt_bitset **bitsets = bitsets_create(BITSETS_SIZE);
@@ -338,12 +357,15 @@ void test_big() {
 
 	bitsets_destroy(bitsets, BITSETS_SIZE);
 
+	ok(1, "test big");
+	check_plan();
 	footer();
 }
 
 static
 void test_not_last() {
 	header();
+	plan(1);
 
 	struct tt_bitset **bitsets = bitsets_create(2);
 
@@ -385,12 +407,15 @@ void test_not_last() {
 
 	bitsets_destroy(bitsets, 2);
 
+	ok(1, "test not last");
+	check_plan();
 	footer();
 }
 
 static
 void test_not_empty() {
 	header();
+	plan(1);
 
 	enum {
 		BITSETS_SIZE = 4,
@@ -428,6 +453,8 @@ void test_not_empty() {
 
 	bitsets_destroy(bitsets, BITSETS_SIZE);
 
+	ok(1, "test not empty");
+	check_plan();
 	footer();
 }
 
@@ -435,6 +462,7 @@ static
 void test_disjunction()
 {
 	header();
+	plan(1);
 
 	enum { BITSETS_SIZE = 32 };
 
@@ -474,6 +502,8 @@ void test_disjunction()
 
 	bitsets_destroy(bitsets, BITSETS_SIZE);
 
+	ok(1, "test disjunction")
+	check_plan();
 	footer();
 }
 
@@ -482,6 +512,7 @@ int main(void)
 	setbuf(stdout, NULL);
 	nums_fill(NUMS, NUMS_SIZE);
 
+	plan(10);
 	test_empty_expr();
 	test_empty_expr_conj1();
 	test_empty_expr_conj2();
@@ -493,5 +524,6 @@ int main(void)
 	test_not_last();
 	test_disjunction();
 
+	check_plan();
 	return 0;
 }

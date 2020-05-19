@@ -51,6 +51,7 @@ static void
 test_insert_1_to_3()
 {
 	header();
+	plan(1);
 	struct test_type *value, *root_value;
 	heap_t heap;
 	test_heap_create(&heap);
@@ -73,7 +74,9 @@ test_insert_1_to_3()
 
 	free_all_nodes(&heap);
 	test_heap_destroy(&heap);
+	ok(1, "test insert 1 to 3");
 
+	check_plan();
 	footer();
 }
 
@@ -81,6 +84,7 @@ static void
 test_insert_3_to_1()
 {
 	header();
+	plan(1);
 	struct test_type *value, *root_value;
 	heap_t heap;
 	test_heap_create(&heap);
@@ -103,7 +107,9 @@ test_insert_3_to_1()
 
 	free_all_nodes(&heap);
 	test_heap_destroy(&heap);
+	ok(1, "test insert 3 to 1");
 
+	check_plan();
 	footer();
 }
 
@@ -111,6 +117,7 @@ static void
 test_insert_50_to_150_mod_100()
 {
 	header();
+	plan(1);
 	struct test_type *value, *root_value;
 	heap_t heap;
 	test_heap_create(&heap);
@@ -143,7 +150,9 @@ test_insert_50_to_150_mod_100()
 		free(root_value);
 	}
 	test_heap_destroy(&heap);
+	ok(1, "test insert 50 to 150 mod 100");
 
+	check_plan();
 	footer();
 }
 
@@ -151,6 +160,7 @@ static void
 test_insert_many_random()
 {
 	header();
+	plan(1);
 	uint32_t ans = UINT_MAX;
 	struct test_type *value, *root_value;
 	heap_t heap;
@@ -179,6 +189,8 @@ test_insert_many_random()
 
 	free_all_nodes(&heap);
 	test_heap_destroy(&heap);
+	ok(1, "test insert many random");
+	check_plan();
 	footer();
 }
 
@@ -186,6 +198,7 @@ static void
 test_insert_10_to_1_pop()
 {
 	header();
+	plan(1);
 	struct test_type *value, *root_value;
 	heap_t heap;
 	test_heap_create(&heap);
@@ -221,7 +234,9 @@ test_insert_10_to_1_pop()
 		free(root_value);
 	}
 	test_heap_destroy(&heap);
+	ok(1, "test insert 10 to 1 pop");
 
+	check_plan();
 	footer();
 }
 
@@ -243,6 +258,7 @@ static void
 test_insert_many_pop_many_random()
 {
 	header();
+	plan(1);
 	uint32_t ans = UINT_MAX;
 
 	struct test_type *value, *root_value;
@@ -309,8 +325,10 @@ test_insert_many_pop_many_random()
 		free(root_value);
 	}
 	test_heap_destroy(&heap);
+	ok(1, "test insert many pop many random");
 
 	free(keys);
+	check_plan();
 	footer();
 }
 
@@ -318,6 +336,7 @@ static void
 test_insert_pop_workload()
 {
 	header();
+	plan(1);
 	uint32_t ans = UINT_MAX;
 
 	struct test_type *value, *root_value;
@@ -354,6 +373,8 @@ test_insert_pop_workload()
 
 	free_all_nodes(&heap);
 	test_heap_destroy(&heap);
+	ok(1, "test insert pop workload");
+	check_plan();
 	footer();
 }
 
@@ -361,6 +382,7 @@ static void
 test_pop_last()
 {
 	header();
+	plan(1);
 	uint32_t ans = UINT_MAX;
 
 	struct test_type *value, *root_value;
@@ -377,6 +399,8 @@ test_pop_last()
 
 	test_heap_destroy(&heap);
 	free(value);
+	ok(1, "test pop last");
+	check_plan();
 	footer();
 }
 
@@ -384,6 +408,7 @@ static void
 test_insert_update_workload()
 {
 	header();
+	plan(1);
 	uint32_t nodes_it = 0;
 	uint64_t current_size = 0;
 	uint32_t ans = UINT_MAX;
@@ -427,6 +452,8 @@ test_insert_update_workload()
 	free_all_nodes(&heap);
 	test_heap_destroy(&heap);
 	free(nodes);
+	ok(1, "test insert update workload");
+	check_plan();
 	footer();
 }
 
@@ -434,6 +461,7 @@ static void
 test_random_delete_workload()
 {
 	header();
+	plan(1);
 	uint32_t nodes_it = 0;
 	uint64_t current_size = 0;
 	uint32_t ans = UINT_MAX;
@@ -477,6 +505,8 @@ test_random_delete_workload()
 	free_all_nodes(&heap);
 	test_heap_destroy(&heap);
 	free(nodes);
+	ok(1, "test random delete workload")
+	check_plan();
 	footer();
 }
 
@@ -484,6 +514,7 @@ static void
 test_delete_last_node()
 {
 	header();
+	plan(1);
 	struct test_type *value, *root_value;
 	heap_t heap;
 	test_heap_create(&heap);
@@ -500,6 +531,8 @@ test_delete_last_node()
 		fail("check heap invariants failed", "test_heap_check(&heap)");
 	}
 	test_heap_destroy(&heap);
+	ok(1, "test delete last node");
+	check_plan();
 	footer();
 }
 
@@ -507,6 +540,7 @@ static void
 test_heapify()
 {
 	header();
+	plan(1);
 	heap_t heap;
 	test_heap_create(&heap);
 
@@ -524,15 +558,18 @@ test_heapify()
 		     "test_heap_check(&heap)");
 	}
 	order_by_val2 = false;
+	ok(1, "test heapify");
 
 	free_all_nodes(&heap);
 	test_heap_destroy(&heap);
+	check_plan();
 	footer();
 }
 
 int
 main(int argc, const char** argv)
 {
+	plan(12);
 	srand(179);
 	test_insert_1_to_3();
 	test_insert_3_to_1();
@@ -546,4 +583,5 @@ main(int argc, const char** argv)
 	test_random_delete_workload();
 	test_delete_last_node();
 	test_heapify();
+	check_plan();
 }

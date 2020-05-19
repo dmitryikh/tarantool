@@ -7,6 +7,7 @@ static void
 test_avl_rotations()
 {
 	header();
+	plan(1);
 
 	struct rope *rope = test_rope_new();
 
@@ -29,6 +30,8 @@ test_avl_rotations()
 	test_rope_insert(rope, 3, "*");
 
 	rope_delete(rope);
+	ok(1, "test avl rotations");
+	check_plan();
 
 	footer();
 }
@@ -36,6 +39,8 @@ test_avl_rotations()
 int
 main()
 {
+	plan(1);
 	test_avl_rotations();
+	check_plan();
 	return 0;
 }

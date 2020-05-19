@@ -57,6 +57,7 @@ static void
 test_counts(void)
 {
 	header();
+	plan(1);
 
 	size_t n_buckets;
 	int64_t *buckets = gen_buckets(&n_buckets);
@@ -83,14 +84,17 @@ test_counts(void)
 	histogram_delete(hist);
 	free(data);
 	free(buckets);
+	ok(1, "test counts");
 
 	footer();
+	check_plan();
 }
 
 static void
 test_discard(void)
 {
 	header();
+	plan(1);
 
 	size_t n_buckets;
 	int64_t *buckets = gen_buckets(&n_buckets);
@@ -124,14 +128,17 @@ test_discard(void)
 	histogram_delete(hist);
 	free(data);
 	free(buckets);
+	ok(1, "test discard");
 
 	footer();
+	check_plan();
 }
 
 static void
 test_percentile(void)
 {
 	header();
+	plan(1);
 
 	size_t n_buckets;
 	int64_t *buckets = gen_buckets(&n_buckets);
@@ -170,15 +177,19 @@ test_percentile(void)
 	histogram_delete(hist);
 	free(data);
 	free(buckets);
+	ok(1, "test percentile");
 
 	footer();
+	check_plan();
 }
 
 int
 main()
 {
+	plan(3);
 	srand(time(NULL));
 	test_counts();
 	test_discard();
 	test_percentile();
+	check_plan();
 }

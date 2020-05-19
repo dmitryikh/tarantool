@@ -1,5 +1,6 @@
 #include "memory.h"
 #include "fiber.h"
+#include "unit.h"
 
 enum {
 	ITERATIONS = 50000,
@@ -35,6 +36,7 @@ benchmark_f(va_list ap)
 
 int main()
 {
+	plan(1);
 	memory_init();
 	fiber_init(fiber_cxx_invoke);
 	struct fiber *benchmark = fiber_new_xc("benchmark", benchmark_f);
@@ -42,5 +44,7 @@ int main()
 	ev_run(loop(), 0);
 	fiber_free();
 	memory_free();
+	ok(1, "fiber stress");
+	check_plan();
 	return 0;
 }
