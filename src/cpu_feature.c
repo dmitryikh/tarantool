@@ -29,6 +29,7 @@
  * SUCH DAMAGE.
  */
 #include "trivia/config.h"
+#include "trivia/util.h"
 #include <sys/types.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -65,7 +66,7 @@ crc32c_hw_byte(uint32_t crc, unsigned char const *data, unsigned int length)
 }
 
 
-uint32_t
+NOSANITIZE_ALIGN uint32_t
 crc32c_hw(uint32_t crc, const char *buf, unsigned int len)
 {
 	unsigned int iquotient = len / SCALE_F;
