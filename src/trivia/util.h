@@ -392,6 +392,12 @@ strnindex(const char **haystack, const char *needle, uint32_t len, uint32_t hmax
 
 /** \endcond public */
 
+#if __has_attribute(no_sanitize)
+#define NOSANITIZE_ALIGN __attribute__((no_sanitize("alignment")))
+#else
+#define NOSANITIZE_ALIGN
+#endif
+
 void close_all_xcpt(int fdc, ...);
 
 void __gcov_flush();
