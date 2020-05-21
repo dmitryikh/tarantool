@@ -25,7 +25,7 @@ add_compile_flags("C;CXX"
     "-Wno-unused-parameter")
 
 if(POLICY CMP0037)
-    cmake_policy(SET CMP0037 OLD)
+    cmake_policy(SET CMP0037 NEW)
 endif(POLICY CMP0037)
 
 execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
