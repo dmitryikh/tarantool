@@ -1,4 +1,6 @@
 -- load_cfg.lua - internal file
+--
+-- vim: ts=4 sw=4 et
 
 local log = require('log')
 local json = require('json')
@@ -59,10 +61,6 @@ local default_cfg = {
     vinyl_range_size          = nil, -- set automatically
     vinyl_page_size           = 8 * 1024,
     vinyl_bloom_fpr           = 0.05,
-    log                 = nil,
-    log_nonblock        = nil,
-    log_level           = 5,
-    log_format          = "plain",
     io_collect_interval = nil,
     readahead           = 16320,
     snap_io_rate_limit  = nil, -- no limit
@@ -233,8 +231,8 @@ end
 local dynamic_cfg = {
     listen                  = private.cfg_set_listen,
     replication             = private.cfg_set_replication,
-    log_level               = private.cfg_set_log_level,
-    log_format              = private.cfg_set_log_format,
+    log_level               = log.box_api.set_log_level,
+    log_format              = log.box_api.set_log_format,
     io_collect_interval     = private.cfg_set_io_collect_interval,
     readahead               = private.cfg_set_readahead,
     too_long_threshold      = private.cfg_set_too_long_threshold,
@@ -470,6 +468,16 @@ local function apply_default_cfg(cfg, default_cfg)
     end
 end
 
+local function apply_default_modules_cfg(cfg)
+    --
+    -- logging
+    for k,v in pairs(log.cfg) do
+        if cfg[k] == nil then
+            cfg[k] = v
+        end
+    end
+end
+
 -- Return true if two configurations are equivalent.
 local function compare_cfg(cfg1, cfg2)
     if type(cfg1) ~= type(cfg2) then
@@ -554,6 +562,7 @@ local function load_cfg(cfg)
     cfg = upgrade_cfg(cfg, translate_cfg)
     cfg = prepare_cfg(cfg, default_cfg, template_cfg, modify_cfg)
     apply_default_cfg(cfg, default_cfg);
+    apply_default_modules_cfg(cfg)
     -- Save new box.cfg
     box.cfg = cfg
     if not pcall(private.cfg_check)  then

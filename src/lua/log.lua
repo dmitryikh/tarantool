@@ -97,6 +97,22 @@ local fmt_str2num = {
     ["json"]            = ffi.C.SF_JSON,
 }
 
+--
+-- Default options. The keys are part of
+-- user API, so change with caution.
+local default_cfg = {
+    log             = nil,
+    log_nonblock    = nil,
+    log_level       = S_INFO,
+    log_format      = fmt_num2str[ffi.C.SF_PLAIN],
+}
+
+local cfg = setmetatable(default_cfg, {
+    __newindex = function()
+        error('log: Attempt to modify a read-only table')
+    end,
+})
+
 local function say(level, fmt, ...)
     if ffi.C.log_level < level then
         -- don't waste cycles on debug.getinfo()
@@ -146,7 +162,8 @@ local function log_rotate()
 end
 
 local function log_level(level)
-    return ffi.C.say_set_log_level(level)
+    ffi.C.say_set_log_level(level)
+    rawset(cfg, 'log_level', level)
 end
 
 local function log_format(name)
@@ -170,6 +187,7 @@ local function log_format(name)
     else
         ffi.C.say_set_log_format(ffi.C.SF_PLAIN)
     end
+    rawset(cfg, 'log_format', name)
 end
 
 local function log_pid()
@@ -197,6 +215,18 @@ return setmetatable({
     pid = log_pid;
     level = log_level;
     log_format = log_format;
+    cfg = cfg,
+    --
+    -- Internal API to box module, not for users,
+    -- names can be changed.
+    box_api = {
+        set_log_level = function()
+            log_level(box.cfg.log_level)
+        end,
+        set_log_format = function()
+            log_format(box.cfg.log_format)
+        end,
+    }
 }, {
     __index = compat_v16;
 })
