@@ -144,7 +144,7 @@ test_connector_php_tarantool: build_debian
 	echo "deb https://packages.sury.org/php/ $$(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list
 	apt-get update && apt-get install -y php7.4 php7.4-dev php7.4-xml
 	php -version
-	curl -SsLf -o /usr/local/bin/phpunit https://phar.phpunit.de/phpunit-9.ahar
+	curl -SsLf -o /usr/local/bin/phpunit https://phar.phpunit.de/phpunit-9.phar
 	chmod a+x /usr/local/bin/phpunit
 	phpunit --version
 	git clone --depth=1 https://github.com/tarantool/tarantool-php.git --branch=php7-v2 tarantool-php
