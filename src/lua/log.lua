@@ -83,6 +83,20 @@ local special_fields = {
     "error_msg"
 }
 
+--
+-- Map format number to string.
+local fmt_num2str = {
+    [ffi.C.SF_PLAIN]    = "plain",
+    [ffi.C.SF_JSON]     = "json",
+}
+
+--
+-- Map format string to number.
+local fmt_str2num = {
+    ["plain"]           = ffi.C.SF_PLAIN,
+    ["json"]            = ffi.C.SF_JSON,
+}
+
 local function say(level, fmt, ...)
     if ffi.C.log_level < level then
         -- don't waste cycles on debug.getinfo()
@@ -104,7 +118,7 @@ local function say(level, fmt, ...)
         fmt = json.encode(fmt)
         if ffi.C.log_format == ffi.C.SF_JSON then
             -- indicate that message is already encoded in JSON
-            format = "json"
+            format = fmt_num2str[ffi.C.SF_JSON]
         end
     elseif type_fmt ~= 'string' then
         fmt = tostring(fmt)
@@ -135,16 +149,23 @@ local function log_level(level)
     return ffi.C.say_set_log_level(level)
 end
 
-local function log_format(format_name)
-    if format_name == "json" then
+local function log_format(name)
+    if not fmt_str2num[name] then
+        local keyset = {}
+        for k,_ in pairs(fmt_str2num) do
+            keyset[#keyset+1] = k
+        end
+        local m = "log_format: expected %s"
+        error(m:format(table.concat(keyset,',')))
+    end
+
+    if fmt_str2num[name] == ffi.C.SF_JSON then
         if ffi.C.log_type() == ffi.C.SAY_LOGGER_SYSLOG then
             error("log_format: 'json' can't be used with syslog logger")
         end
         ffi.C.say_set_log_format(ffi.C.SF_JSON)
-    elseif format_name == "plain" then
-        ffi.C.say_set_log_format(ffi.C.SF_PLAIN)
     else
-        error("log_format: expected 'json' or 'plain'")
+        ffi.C.say_set_log_format(ffi.C.SF_PLAIN)
     end
 end
 
