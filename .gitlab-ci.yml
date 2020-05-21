@@ -1,6 +1,6 @@
 stages:
   - test
-  - integr_test
+  - integration_test
   - perf
   - cleanup
 

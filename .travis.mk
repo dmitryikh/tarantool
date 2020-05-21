@@ -98,16 +98,16 @@ test_debian_clang8: deps_debian deps_buster_clang_8 test_debian_no_deps
 
 test_module_vshard: build_debian 
 	make install
-	git clone --recurse-submodules https://github.com/tarantool/vshard.git vshard
+	git clone --depth=1 --recurse-submodules https://github.com/tarantool/vshard.git vshard
 	cd vshard && cmake . && make test
 
 test_connector_python_asynctnt: build_debian
 	make install
 	apt-get install -y python3-pip python3-dev pandoc python3-setuptools
 	python3 -V && pip3 -V
-	git clone https://github.com/igorcoding/asynctnt.git asynctnt-python
-	cd asynctnt-python && git submodule update --init && pip3 install -r requirements.txt \
-		&& PYTHON=python3 make && pip3 install -e . && PYTHON=python3 make quicktest
+	git clone --depth=1  --recurse-submodules https://github.com/igorcoding/asynctnt.git asynctnt-python
+	cd asynctnt-python && pip3 install -r requirements.txt && export PYTHON=python3 \
+		&& make && pip3 install -e . && make quicktest
 
 test_connector_python_tarantool: build_debian
 	make install
@@ -128,10 +128,13 @@ test_connector_go_tarantool: build_debian
 
 test_connector_go_viciious: build_debian
 	make install
-	wget --progress=dot:mega https://dl.google.com/go/go1.14.2.linux-amd64.tar.gz
-	tar -xf go1.14.2.linux-amd64.tar.gz && mv go /usr/local
-	export GOROOT=/usr/local/go && export PATH=$$GOROOT/bin:$$PATH \
-		&& export GOPATH="/usr/local/go/go-tarantool" && go version
+	wget --progress=dot:mega https://dl.google.com/go/go1.10.linux-amd64.tar.gz
+	tar -C /usr/local -xzf go1.10.linux-amd64.tar.gz
+	chmod -R a+rwx /usr/local/go 
+	export PATH=/usr/local/go/bin:$$PATH && export GOPATH=/usr/local/go/go-tarantool \
+		&& export GOBIN=$$GOPATH/bin && go get github.com/viciious/go-tarantool \
+		&& cd /usr/local/go/go-tarantool/src/github.com/viciious/go-tarantool \
+		&& mkdir log && export TNT_LOG_DIR=`pwd`/log && go test -v .
 
 test_connector_php_tarantool: build_debian
 	make install
@@ -144,7 +147,7 @@ test_connector_php_tarantool: build_debian
 	curl -SsLf -o /usr/local/bin/phpunit https://phar.phpunit.de/phpunit-9.phar
 	chmod a+x /usr/local/bin/phpunit
 	phpunit --version
-	git clone https://github.com/tarantool/tarantool-php.git tarantool-php
+	git clone --depth=1 https://github.com/tarantool/tarantool-php.git tarantool-php
 	cd tarantool-php && git checkout php7-v2 && phpize && ./configure \
 		&& make && make install && /usr/bin/python test-run.py
 
@@ -152,7 +155,7 @@ test_connector_java_tarantool: build_debian
 	make install
 	apt-get update && apt-get install -y openjdk-8-jre openjdk-8-jdk
 	java -version && tarantool -V && which tarantoolctl
-	git clone https://github.com/tarantool/tarantool-java.git tarantool-java
+	git clone --depth=1 https://github.com/tarantool/tarantool-java.git tarantool-java
 	cd tarantool-java && ./mvnw clean test && ./mvnw clean verify
 
 # Debug with coverage
