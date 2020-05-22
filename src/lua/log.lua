@@ -97,6 +97,14 @@ local fmt_str2num = {
     ["json"]            = ffi.C.SF_JSON,
 }
 
+local function fmt_list()
+    local keyset = {}
+    for k,_ in pairs(fmt_str2num) do
+        keyset[#keyset+1] = k
+    end
+    return table.concat(keyset,',')
+end
+
 --
 -- Default options. The keys are part of
 -- user API, so change with caution.
@@ -168,12 +176,8 @@ end
 
 local function log_format(name)
     if not fmt_str2num[name] then
-        local keyset = {}
-        for k,_ in pairs(fmt_str2num) do
-            keyset[#keyset+1] = k
-        end
         local m = "log_format: expected %s"
-        error(m:format(table.concat(keyset,',')))
+        error(m:format(fmt_list()))
     end
 
     if fmt_str2num[name] == ffi.C.SF_JSON then
@@ -192,6 +196,45 @@ end
 
 local function log_pid()
     return tonumber(ffi.C.log_pid)
+end
+
+--
+-- Initialize logger early (if not yet set up
+-- via box.cfg interface.
+--
+local function init(args)
+    if ffi.C.say_logger_initialized() == true then
+        error("log: the logger is already initialized")
+    end
+
+    args = args or {}
+
+    if args.log_format ~= nil then
+        if fmt_str2num[args.log_format] == nil then
+            local m = "log: 'log_format' must be %s"
+            error(m:format(fmt_list()))
+        end
+    else
+        args.log_format = cfg.log_format
+    end
+
+    args.log_level = args.log_level or cfg.log_level
+    args.log_nonblock = args.log_nonblock or cfg.log_nonblock
+
+    --
+    -- We never allow confgure the logger in background
+    -- mode since we don't know how the box will be configured
+    -- later.
+    ffi.C.say_logger_init(args.log, args.log_level,
+                          args.log_nonblock, args.log_format, 0)
+
+    --
+    -- Update cfg vars to show them in module
+    -- configuration output.
+    rawset(cfg, 'log', args.log)
+    rawset(cfg, 'log_level', args.log_level)
+    rawset(cfg, 'log_nonblock', args.log_nonblock)
+    rawset(cfg, 'log_format', args.log_format)
 end
 
 local compat_warning_said = false
@@ -216,6 +259,7 @@ return setmetatable({
     level = log_level;
     log_format = log_format;
     cfg = cfg,
+    init = init,
     --
     -- Internal API to box module, not for users,
     -- names can be changed.
