@@ -1,23 +1,44 @@
 #!/usr/bin/env tarantool
 
 local test = require('tap').test('log')
-test:plan(24)
+test:plan(27)
 
 -- gh-3946: Assertion failure when using log_format() before box.cfg()
 local log = require('log')
 log.log_format('plain')
 
 --
+-- gh-689: Operate with logger via log module without calling box.cfg{}
+local json = require('json')
+local filename = "1.log"
+
+log.init({log=filename, log_format='json', log_level=5})
+local m = "info message"
+
+local file = io.open(filename)
+while file:read() do
+end
+
+log.info(m)
+local line = file:read()
+local message = json.decode(line)
+file:close()
+
+test:is(type(message), 'table', "(log) json valid in log.info")
+test:is(message.level, "INFO", "(log) check type info")
+test:is(message.message, m, "(log) check message content")
+log.log_format('plain')
+
+--
 -- Check that Tarantool creates ADMIN session for #! script
 --
-local filename = "1.log"
 local message = "Hello, World!"
 box.cfg{
     log=filename,
+    log_format='plain',
     memtx_memory=107374182,
 }
 local fio = require('fio')
-local json = require('json')
 local fiber = require('fiber')
 local file = io.open(filename)
 while file:read() do
