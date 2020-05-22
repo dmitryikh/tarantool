@@ -5,7 +5,6 @@ test:plan(24)
 
 -- gh-3946: Assertion failure when using log_format() before box.cfg()
 local log = require('log')
-log.log_format('json')
 log.log_format('plain')
 
 --
