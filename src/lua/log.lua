@@ -237,6 +237,15 @@ local function init(args)
     rawset(cfg, 'log_format', args.log_format)
 end
 
+--
+-- Reflect the changes made by box.cfg interface
+local function box_cfg_update(box_cfg)
+    rawset(cfg, 'log', box_cfg.log)
+    rawset(cfg, 'log_level', box_cfg.log_level)
+    rawset(cfg, 'log_nonblock', box_cfg.log_nonblock)
+    rawset(cfg, 'log_format', box_cfg.log_format)
+end
+
 local compat_warning_said = false
 local compat_v16 = {
     logger_pid = function()
@@ -270,6 +279,7 @@ return setmetatable({
         set_log_format = function()
             log_format(box.cfg.log_format)
         end,
+        cfg_update = box_cfg_update,
     }
 }, {
     __index = compat_v16;

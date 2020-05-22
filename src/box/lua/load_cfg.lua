@@ -478,6 +478,12 @@ local function apply_default_modules_cfg(cfg)
     end
 end
 
+local function update_modules_cfg(cfg)
+    --
+    -- logging
+    log.box_api.cfg_update(cfg)
+end
+
 -- Return true if two configurations are equivalent.
 local function compare_cfg(cfg1, cfg2)
     if type(cfg1) ~= type(cfg2) then
@@ -597,6 +603,7 @@ local function load_cfg(cfg)
             end
         end
     end
+    update_modules_cfg(cfg)
     if not box.cfg.read_only and not box.cfg.replication then
         box.schema.upgrade{auto = true}
     end
