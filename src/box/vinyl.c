@@ -3539,10 +3539,21 @@ vy_squash_process(struct vy_squash *squash)
 		if (vy_tuple_compare(result, mem_stmt, lsm->cmp_def) != 0 ||
 		    vy_stmt_type(mem_stmt) != IPROTO_UPSERT)
 			break;
-		assert(vy_stmt_lsn(mem_stmt) >= MAX_LSN);
-		vy_stmt_set_n_upserts((struct tuple *)mem_stmt, n_upserts);
-		if (n_upserts <= VY_UPSERT_THRESHOLD)
-			++n_upserts;
+		/*
+		 * Upsert was not applied in vy_history_apply(),
+		 * but it still resides in tree memory. Ignore
+		 * such statements and do not account them while
+		 * counting upserts. Otherwise invalid upserts will
+		 * get stack and won't allow other upserts to squash.
+		 */
+		if (vy_stmt_lsn(mem_stmt) >= MAX_LSN) {
+			vy_stmt_set_n_upserts((struct tuple *) mem_stmt,
+					      n_upserts);
+			if (n_upserts <= VY_UPSERT_THRESHOLD)
+				++n_upserts;
+		} else {
+			vy_stmt_set_n_upserts((struct tuple *) mem_stmt, 0);
+		}
 		vy_mem_tree_iterator_prev(&mem->tree, &mem_itr);
 	}
 
