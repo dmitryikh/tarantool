@@ -219,7 +219,8 @@ local function init(args)
     end
 
     args.log_level = args.log_level or cfg.log_level
-    args.log_nonblock = args.log_nonblock or cfg.log_nonblock
+
+    args.log_nonblock = args.log_nonblock or (cfg.log_nonblock or false)
 
     --
     -- We never allow confgure the logger in background
