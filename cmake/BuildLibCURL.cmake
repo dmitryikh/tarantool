@@ -53,7 +53,7 @@ macro(curl_build)
     endif()
 
     include(ExternalProject)
-    if(${CMAKE_MAJOR_VERSION} VERSION_LESS "3")
+    if(${CMAKE_MAJOR_VERSION} VERSION_LESS "1")
         ExternalProject_Add(
             bundled-libcurl-project
             SOURCE_DIR ${LIBCURL_SOURCE_DIR}
